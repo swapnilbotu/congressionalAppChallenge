@@ -1,0 +1,262 @@
+/* General styles remain the same */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    width: 100%;
+    height: 100vh;
+    background-color: #FAFAFA; 
+}
+
+.nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    padding: 1.5rem 7rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+}
+
+.nav .logo h2 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.nav .navigation ul {
+    display: flex;
+    flex-direction: row;
+}
+
+.nav .navigation ul li {
+    list-style: none;
+    padding: 0 1rem;
+}
+
+.nav .navigation ul li a {
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    font-weight: 500;
+    color: #333;
+    transition: 0.3s ease;
+}
+
+.nav .navigation ul li a:hover {
+    color: #fe2f40;
+}
+
+.nav .navigation ul li a span {
+    background-color: #fe3f40;
+    font-size: 15px;
+    font-weight: 400;
+    color: #FAFAFA;
+    padding: 12px 25px;
+    border-radius: 23px;
+    letter-spacing: 0.25px;
+}
+
+.banner {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-image: url('https://media.istockphoto.com/id/1301156172/photo/light-blue-watercolor-background.jpg?b=1&s=612x612&w=0&k=20&c=U_xOP-P6urOdlhic6jkr8iGX4efadcR1FDGMKy_KjU4=');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
+    padding-top: 4rem;
+    padding-left: 7rem;
+    padding-right: 7rem;
+}
+
+.banner .text {
+    width: 45%;
+    color: #333;
+}
+
+.banner .text h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 4px;
+    color: #fe3f40;
+    text-transform: uppercase;
+}
+
+.banner .text h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 30px;
+    letter-spacing: 3px;
+    padding-bottom: 10px;
+}
+
+.banner .text p {
+    font-size: 0.9rem;
+    line-height: 20px;
+    padding-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.banner .features {
+    width: 50%;  /* Adjusts width of the features box */
+    background-color: rgba(255, 255, 255, 0.85); /* Transparent white background */
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.banner .features h2 {
+    font-size: 1.5rem;
+    color: #fe3f40;
+    margin-bottom: 1rem;
+}
+
+.banner .features ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.banner .features ul li {
+    font-size: 1rem;
+    color: #333;
+    padding: 0.5rem 0;
+    line-height: 1.5;
+}
+
+/* About Us Flip Cards Section */
+.about-section {
+    padding-top: 4rem;
+    text-align: center;
+}
+
+.about-section h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+.cards-container {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+}
+
+.card {
+    width: 300px;
+    height: 400px;
+    perspective: 1000px;
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.about-background {
+    background-image: url('https://media.istockphoto.com/id/1301156172/photo/light-blue-watercolor-background.jpg?b=1&s=612x612&w=0&k=20&c=U_xOP-P6urOdlhic6jkr8iGX4efadcR1FDGMKy_KjU4='); /* Same background as home page */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
+    padding-top: 4rem;
+    padding-left: 7rem;
+    padding-right: 7rem;
+}
+
+
+.card:hover .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.card-front {
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-front img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+
+.card-front h3 {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.card-back {
+    background-color: #fe3f40;
+    color: #fff;
+    transform: rotateY(180deg);
+    text-align: center;
+    padding: 1.5rem;
+    line-height: 1.5;
+}
+
+/* Careers Page Background */
+.careers-background {
+    background-image: url('https://media.istockphoto.com/id/1301156172/photo/light-blue-watercolor-background.jpg?b=1&s=612x612&w=0&k=20&c=U_xOP-P6urOdlhic6jkr8iGX4efadcR1FDGMKy_KjU4=');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
+    padding-top: 6rem;
+    padding-left: 7rem;
+    padding-right: 7rem;
+}
+
+/* Careers Section */
+.careers-section {
+    padding: 4rem 7rem;
+    text-align: center;
+}
+
+.careers-section h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+.careers-section p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+    color: #555;
+}
+
+.careers-section .job-listing {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2rem;
+}

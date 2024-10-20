@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #results ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        #results ul li {
+            margin-bottom: 10px;
+        }
+        #resultContainer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Career Finder</h1>
+    
+    <form id="careerForm">
+        <label for="keyword">Enter Career Keyword:</label>
+        <input type="text" id="keyword" placeholder="e.g., Software Engineer" required>
+        
+        <label for="zipCode">Enter Zip Code:</label>
+        <input type="number" id="zipCode" placeholder="Enter Zip Code" required>
+        
+        <button type="submit">Search</button>
+    </form>
+    
+    <div id="results"></div>
+    <div id="occupationDetails"></div>
+    
+
+    <div id="results"></div>
+    <div id="resultContainer"></div>
+
+    <script src="careers.js"></script>
+
+</body>
+</html>
