@@ -82,7 +82,7 @@ class CareerMatch:
                 occupation_info = {
                     "Title": occupation_detail.get("OnetTitle"),
                     "Description": occupation_detail.get("OnetDescription"),
-                    "Salary Info": f"Annual Wage: ${annualWage}\t Hourly Wage: ${hourlyWage}",
+                    "Salary Info": f"Annual Wage: ${annualWage}, Hourly Wage: ${hourlyWage}",
                     "Education": occupation_detail.get("EducationTraining", {}),
                     "Tasks": [dwa.get("DwaTitle") for dwa in occupation_detail.get("Dwas", [])],
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
