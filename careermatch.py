@@ -79,15 +79,29 @@ class CareerMatch:
                 annualWage = occupation_detail.get("Wages", {})["StateWagesList"][0]["Median"]
                 hourlyWage = occupation_detail.get("Wages", {})["StateWagesList"][1]["Median"]
 
+                # Formatting tasks as an HTML list
+                formatted_tasks = "<ul>"
+                for task in occupation_detail.get("Dwas", []):
+                    formatted_tasks += f"<li>{task.get('DwaTitle')}</li>"
+                formatted_tasks += "</ul>"
+
+                # Formatting job growth projections as an HTML list
+                formatted_growth = "<ul>"
+                for growth in occupation_detail.get("Projections", {}).get("Projections", []):
+                    state = growth.get('StateName', 'Unknown')
+                    openings = growth.get('ProjectedAnnualJobOpening', 'Unknown')
+                    formatted_growth += f"<li>{state}: {openings} openings</li>"
+                formatted_growth += "</ul>"
+
                 occupation_info = {
                     "Title": occupation_detail.get("OnetTitle"),
                     "Description": occupation_detail.get("OnetDescription"),
                     "Salary Info": f"Annual Wage: ${annualWage}\t Hourly Wage: ${hourlyWage}",
                     "Education": occupation_detail.get("EducationTraining", {}),
-                    "Tasks": [dwa.get("DwaTitle") for dwa in occupation_detail.get("Dwas", [])],
+                    "Tasks": formatted_tasks,
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
                     "Video Relating to the Career": occupation_detail.get("COSVideoURL"),
-                    "Job Growth Projections": occupation_detail.get("Projections", {}).get("Projections", "N/A"),
+                    "Job Growth Projections": formatted_growth,
                     "Related Careers": occupation_detail.get("RelatedOnetTitles", {}),
                     "Training Programs": occupation_detail.get("TrainingPrograms", []),
                     "Minimum Education Requirement": occupation_detail.get("EducationTraining", {}).get("EducationTitle", "N/A")

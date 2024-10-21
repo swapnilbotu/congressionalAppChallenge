@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, jsonify
-from careerMatch import CareerMatch
+from careermatch import CareerMatch
 
 app = Flask(__name__)
 
