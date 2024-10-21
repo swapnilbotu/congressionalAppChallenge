@@ -1,3 +1,4 @@
+
 import requests
 import json
 
@@ -20,20 +21,13 @@ class CareerMatch:
 
         if response.status_code == 200:
             data = response.json()
-            occupations = data["OccupationList"]
-            print()
-
-            itemNum = 1
-            for item in occupations:
-                print(f'[{itemNum}] {item["OnetTitle"]} : {item["OccupationDescription"]}')
-                itemNum += 1
+            occupations = data.get("OccupationList", [])
+            
+            return [{"OnetTitle": item["OnetTitle"], "OnetCode": item["OnetCode"], "OccupationDescription": item["OccupationDescription"]} for item in occupations]
+        
         else:
             print(f"Error fetching occupation details: {response.status_code}")
             return None
-
-        occupation_choice = int(input("\nEnter the number representing your desired career: "))
-        print("\n\n\n\nYour selected occupation:", occupations[occupation_choice - 1]["OnetTitle"])
-        return occupations[occupation_choice - 1]["OnetCode"]
 
     def detailed_occupation_data(self, onetID, location):
         # API endpoint and parameters
@@ -90,40 +84,21 @@ class CareerMatch:
                     "Tasks": [dwa.get("DwaTitle") for dwa in occupation_detail.get("Dwas", [])],  # Get only the DWAS titles
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
                     "Video Relating to the Career": occupation_detail.get("COSVideoURL"),
-                    "Job Growth Projections": occupation_detail["Projections"]["Projections"],
+                    "Job Growth Projections": occupation_detail.get("Projections", {}).get("Projections", "N/A"),
                     "Related Careers": occupation_detail.get("RelatedOnetTitles", {}),
                     "Training Programs": occupation_detail.get("TrainingPrograms", []),
-                    "Minimum Education Requirement": occupation_detail["EducationTraining"]["EducationTitle"]
+                    "Minimum Education Requirement": occupation_detail.get("EducationTraining", {}).get("EducationTitle", "N/A")
                 }
 
-                # Print occupation details
-                for key, value in occupation_info.items():
-                    if value:
-                        print(f"{key}: {value}")
-
-                # Fetch certifications and display at the end
-                certifications = self.list_certifications(occupation_info["Title"])
-                if certifications:
-                    print("\nCertifications available:")
-                    for cert in certifications:
-                        print(f"Name: {cert['Name']}")
-                        print(f"Organization: {cert['Organization']}")
-                        print(f"URL: {cert['Url']}")
-                        print(f"Description: {cert['Description']}")
-
-                        # Displaying detailed certification info (if available)
-                        if "CertDetailList" in cert:
-                            print("\nCertification Details:")
-                            for detail in cert["CertDetailList"]:
-                                print(f"  {detail['Name']}: {detail['Value']}")
-
-                        print("\n" + "-"*40 + "\n")  # Divider for readability
+                return occupation_info  # Return the dictionary with details
 
             else:
                 print("No occupation details found.")
+                return {}
 
         else:
             print(f"Error fetching occupation details: {response.status_code}")
+            return {}
 
     def list_certifications(self, occupation_title):
         certifications_url = f'https://api.careeronestop.org/v1/certificationfinder/{self.user_id}/{occupation_title}/0/0/0/0/0/0/0/0/0/5'
@@ -144,14 +119,26 @@ class CareerMatch:
             return []
 
     def main(self):
-        keyword = input("Enter the name of your career of choice: ")
+        keyword = input("Enter a keyword related to your career of choice: ")
         location = int(input("Enter your zip code: "))
 
         # Get the OnetCode from the selected career
-        onet_code = self.find_career(keyword)
+        onet_codes = self.find_career(keyword)
 
-        if onet_code:  # Check if we successfully got an OnetCode
-            self.detailed_occupation_data(onet_code, location)
+        if onet_codes:  # Check if we successfully got OnetCodes
+            print("Available Occupations:")
+            for idx, career in enumerate(onet_codes):
+                print(f"{idx + 1}: {career['OnetTitle']} (Code: {career['OnetCode']})")
 
-api = CareerMatch()
-api.main()
+            choice = int(input("Select an occupation by number: ")) - 1
+            if 0 <= choice < len(onet_codes):
+                selected_onet_code = onet_codes[choice]['OnetCode']
+                self.detailed_occupation_data(selected_onet_code, location)
+            else:
+                print("Invalid selection.")
+        else:
+            print("No occupations found.")
+
+# Uncomment to run
+# api = CareerMatch()
+# api.main()
