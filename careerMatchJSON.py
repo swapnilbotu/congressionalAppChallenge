@@ -76,16 +76,20 @@ class CareerMatch:
             if data.get("RecordCount", 0) > 0:
                 occupation_detail = data['OccupationDetail'][0]  # Get the first occupation detail
 
-                # Remove unnecessary fields
-                entries_to_remove = ("NationalWagesList","BLSAreaWagesList","WageYear", "SocData", "SocWageInfo", "SocTitle", "SocDescription")
-                for k in entries_to_remove:
-                    occupation_detail["Wages"].pop(k, None)
+                # Extract only the median wage info for both annual and hourly rates from StateWagesList
+                wages_list = occupation_detail.get("Wages", {}).get("StateWagesList", [])
+                median_wages = {}
+                for wage in wages_list:
+                    if wage.get("RateType") == "Annual":
+                        median_wages["Median Annual Wage"] = wage.get("Median")
+                    elif wage.get("RateType") == "Hourly":
+                        median_wages["Median Hourly Wage"] = wage.get("Median")
 
                 # Extract relevant details
                 occupation_info = {
                     "Title": occupation_detail.get("OnetTitle"),
                     "Description": occupation_detail.get("OnetDescription"),
-                    "Salary Info": occupation_detail.get("Wages", {}),
+                    "Salary Info": median_wages,  # Only the median wages
                     "Education": occupation_detail.get("EducationTraining", {}),
                     "Tasks": [dwa.get("DwaTitle") for dwa in occupation_detail.get("Dwas", [])],  # Get only the DWAS titles
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
@@ -109,6 +113,8 @@ class CareerMatch:
 
         else:
             print(f"Error fetching occupation details: {response.status_code}")
+
+
 
     def list_certifications(self, occupation_title):
         certifications_url = f'https://api.careeronestop.org/v1/certificationfinder/{self.user_id}/{occupation_title}/0/0/0/0/0/0/0/0/0/5'
