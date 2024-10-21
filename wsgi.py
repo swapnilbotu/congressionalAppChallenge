@@ -1,6 +1,6 @@
 from wsgiref.simple_server import make_server
 from urllib.parse import parse_qs
-from careerMatch import CareerMatch
+from careermatch import CareerMatch
 
 class SimpleWSGIApp:
     def __init__(self):
