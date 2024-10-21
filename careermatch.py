@@ -1,6 +1,4 @@
 import requests
-import json
-
 
 class CareerMatch:
     def __init__(self):
