@@ -79,11 +79,17 @@ class CareerMatch:
                 for k in entries_to_remove:
                     occupation_detail["Wages"].pop(k, None)
 
-                annualWage = occupation_detail.get("Wages", {})["StateWagesList"][0]["Median"]
-                hourlyWage = occupation_detail.get("Wages", {})["StateWagesList"][1]["Median"]
+
+                if len(occupation_detail.get("Wages", "Salary Data Not Available for this Occupation")["StateWagesList"]) > 1:
+                    annualWage = occupation_detail.get("Wages", "(Annual Salary Data Not Available for this Occupation)")["StateWagesList"][0]["Median"]
+                    hourlyWage = occupation_detail.get("Wages", "(Hourly Salary Data Not Available for this Occupation)")["StateWagesList"][1]["Median"]
+                elif len(occupation_detail.get("Wages", "Salary Data Not Available for this Occupation")["StateWagesList"]) == 1:
+                    annualWage = occupation_detail.get("Wages", "(Annual Salary Data Not Available for this Occupation)")["StateWagesList"][0]["Median"]
+                    hourlyWage = "(Hourly Salary Data Not Available for this Occupation)"
+                else:
+                    annualWage, hourlyWage = "(Annual Salary Data Not Available for this Occupation)", "(Hourly Salary Data Not Available for this Occupation)"
 
 
-                #print(occupation_detail.get("Projections").get("Projections"))
                 stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
                 stateName = occupation_detail.get("Projections").get("Projections")[0].get("StateName", "")
                 nationGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[1]["PerCentChange"])
@@ -111,7 +117,6 @@ class CareerMatch:
                     "Job Growth Projections": f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}.\nWe predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}.",
                     "Related Careers": occupation_detail.get("RelatedOnetTitles", {}),
                     "Training Programs": occupation_detail.get("TrainingPrograms", []),
-                    
                 }
 
                 return occupation_info

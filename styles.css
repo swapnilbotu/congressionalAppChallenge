@@ -8,8 +8,12 @@
 
 body {
     width: 100%;
-    height: 100vh;
+    height: auto; /* Change to auto to allow scrolling */
     background-color: #FAFAFA; 
+    background-image: url('https://images.unsplash.com/photo-1503480207415-fdddcc21d5fc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+    background-size: cover; /* Cover the entire area */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Do not repeat the image */
 }
 
 .nav {
@@ -69,7 +73,7 @@ body {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background-image: url('https://media.istockphoto.com/id/1301156172/photo/light-blue-watercolor-background.jpg?b=1&s=612x612&w=0&k=20&c=U_xOP-P6urOdlhic6jkr8iGX4efadcR1FDGMKy_KjU4=');
+    background-image: url('https://images.unsplash.com/photo-1503480207415-fdddcc21d5fc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -83,6 +87,15 @@ body {
 .banner .text {
     width: 45%;
     color: #333;
+    text-align: left; /* Align text to the left */
+}
+
+.banner .text h1, 
+.banner .text h2, 
+.banner .text p, 
+.banner .features h2, 
+.banner .features ul li {
+    text-align: left; /* Ensure all headings and paragraphs are left aligned */
 }
 
 .banner .text h1 {
@@ -134,7 +147,6 @@ body {
     line-height: 1.5;
 }
 
-/* About Us Flip Cards Section */
 .about-section {
     padding-top: 4rem;
     text-align: center;
@@ -167,7 +179,7 @@ body {
 }
 
 .about-background {
-    background-image: url('https://media.istockphoto.com/id/1301156172/photo/light-blue-watercolor-background.jpg?b=1&s=612x612&w=0&k=20&c=U_xOP-P6urOdlhic6jkr8iGX4efadcR1FDGMKy_KjU4='); /* Same background as home page */
+    background-image: url('https://images.unsplash.com/photo-1503480207415-fdddcc21d5fc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* Same background as home page */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -177,7 +189,6 @@ body {
     padding-left: 7rem;
     padding-right: 7rem;
 }
-
 
 .card:hover .card-inner {
     transform: rotateY(180deg);
@@ -222,41 +233,171 @@ body {
     line-height: 1.5;
 }
 
-/* Careers Page Background */
+/* Ensure body and html take up full height */
+html, body {
+    height: 100%; /* Full height */
+    margin: 0; /* Remove default margin */
+}
+
 .careers-background {
-    background-image: url('https://media.istockphoto.com/id/1301156172/photo/light-blue-watercolor-background.jpg?b=1&s=612x612&w=0&k=20&c=U_xOP-P6urOdlhic6jkr8iGX4efadcR1FDGMKy_KjU4=');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 100vh;
-    padding-top: 6rem;
-    padding-left: 7rem;
-    padding-right: 7rem;
+    background: url('https://images.unsplash.com/photo-1503480207415-fdddcc21d5fc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed; /* Background image */
+    background-size: cover; /* Make sure the background covers the entire area */
+    height: 100vh; /* Full viewport height */
+    display: flex; /* Center content vertically */
+    justify-content: center; /* Center content horizontally */
+    align-items: flex-start; /* Align items at the top */
+    padding-top: 100px; /* Add padding to the top */
 }
 
 /* Careers Section */
 .careers-section {
-    padding: 4rem 7rem;
-    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8); /* Light background for the form */
+    padding: 40px 20px; /* Add padding around the section */
+    border-radius: 10px; /* Optional: rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow for the form */
+    max-width: 1200px; /* Limit the maximum width */
+    width: 100%; /* Full width for responsiveness */
+    margin: 0 auto; /* Center the section */
 }
 
 .careers-section h1 {
     font-size: 2.5rem;
     color: #333;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem; /* Adjusted margin */
+    text-align: left; /* Align heading to the left */
 }
+
+.job-listing {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 1.5rem; /* Space between items */
+    padding: 1rem; /* Add padding to the list */
+}
+
+
 
 .careers-section p {
     font-size: 1.2rem;
     line-height: 1.8;
     margin-bottom: 3rem;
     color: #555;
+    text-align: left; /* Align paragraph to the left */
 }
 
-.careers-section .job-listing {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 2rem;
+/* New Job Listing Container */
+.job-listing-container {
+    background-color: transparent; /* Keep background transparent for the container */
+    padding: 0; /* No padding for a cleaner layout */
 }
+
+/* Job Listing */
+.job-listing {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 1.5rem; /* Space between items */
+    padding: 1rem; /* Add some padding to the list */
+}
+
+.job-listing li {
+    background-color: #f9f9f9; /* Light background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 1rem; /* Add padding to the item */
+    list-style-type: none; /* Remove bullet points */
+}
+
+.job-listing li h3 {
+    margin: 0; /* Remove default margin */
+    font-size: 1.2rem; /* Title font size */
+    text-align: left; /* Align heading to the left */
+}
+
+.job-listing li p {
+    margin: 0; /* Remove default margin */
+    font-size: 0.9rem; /* Description font size */
+    text-align: left; /* Align paragraph to the left */
+}
+
+/* Optional hover effect */
+.job-listing li:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow on hover */
+}
+
+/* Optionally, you can also style the container holding the items */
+.careers-section {
+    max-width: 1200px; /* Limit the maximum width */
+    margin: 0 auto; /* Center the section */
+    padding: 2rem; /* Add some padding around the section */
+}
+
+
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    z-index: 1000;
+}
+
+.chatbot-toggle {
+    background-color: #fe3f40;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.chatbot-box {
+    display: none;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    margin-top: 10px;
+}
+
+.chatbot-box.visible {
+    display: flex;
+}
+
+.chatbot-header {
+    background-color: #fe3f40;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.chatbot-history {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.chatbot-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 0;
+    margin: 0;
+}
+
+.chatbot-send {
+    background-color: #fe3f40;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 0;
+}
+
+/* Add this section for the form card styling */
+.form-card {
+    background-color: white; /* White background for the card */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow*/
+    padding: 1.5rem;
+}
+
