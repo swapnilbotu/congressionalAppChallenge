@@ -60,8 +60,6 @@ class SimpleWSGIApp:
             <div class="careers-background">
                 <div class="careers-section">
                     <h2>Find Your Career</h2>
-                    <p>Don't know what career you belong to? Click on the link below to take a short quiz to find your career! Then use that career below to get more occupations and details about it!</p>
-                    <a href="quiz_link_here">Take the Quiz</a>  <!-- Replace with actual quiz link -->
                     <form method="POST" action="/get_careers">
                         <label for="keyword">Keyword:</label>
                         <input type="text" id="keyword" name="keyword" required><br>

@@ -9,7 +9,7 @@ class CareerChatbot:
         self.current_state = "ask_career"  # Initial state to ask for career
         self.career_of_interest = None
         self.zipcode = None
-        self.initial_message = "Hi there! What career are you interested in learning more about?"
+        self.initial_message = "Hi there! Please enter the career that you are interested in learning more about?"
 
     def get_response(self, user_input):
         if self.current_state == "ask_career":
