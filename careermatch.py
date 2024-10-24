@@ -9,7 +9,7 @@ from flask import Flask, request, jsonify, render_template
 load_dotenv()
 
 app = Flask(__name__)
-
+#wwwwwww
 class CareerMatch:
     def __init__(self):
         self.base_url = 'https://api.careeronestop.org/v1/occupation/'
