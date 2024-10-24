@@ -128,30 +128,36 @@
 
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
-
+    
         const genAI = new GoogleGenerativeAI('AIzaSyAPLEHp-EgmbZgMxhQXZ1LVrd5BcFBhMFo');
-
-        // Handle chatbot toggle
+    
         const chatbotToggle = document.querySelector(".chatbot-toggle");
         const chatbotBox = document.querySelector(".chatbot-box");
-
-        chatbotToggle.addEventListener("click", () => {
-            chatbotBox.classList.toggle("active");
-            chatbotToggle.textContent = chatbotBox.classList.contains("active") ? "Close Chat" : "Chat with us!";
-        });
-
         const chatbotHistory = document.querySelector(".chatbot-history");
         const chatInput = document.querySelector(".chatbot-input");
         const sendChatBtn = document.querySelector(".chatbot-send");
-
+    
+        let isFirstMessage = true; // Flag to track if it's the first message
+    
+        chatbotToggle.addEventListener("click", () => {
+            chatbotBox.classList.toggle("active");
+            chatbotToggle.textContent = chatbotBox.classList.contains("active") ? "Close Chat" : "Chat with us!";
+    
+            if (chatbotBox.classList.contains("active") && isFirstMessage) {
+                chatbotHistory.innerHTML += `<div><strong>Bot:</strong> Welcome to Career Vision! Please enter the career that you are interested in:</div>`;
+                isFirstMessage = false; // Set the flag to false after the first message
+                chatbotHistory.scrollTop = chatbotHistory.scrollHeight; // Auto-scroll to bottom
+            }
+        });
+    
         const handleChat = async () => {
             const userMessage = chatInput.value.trim();
             if (!userMessage) return;
-
+    
             // Clear input
             chatInput.value = "";
             chatbotHistory.innerHTML += `<div><strong>You:</strong> ${userMessage}</div>`;
-
+    
             // Send the user message to the backend
             try {
                 const response = await fetch('/chatbot', {
@@ -161,7 +167,7 @@
                     },
                     body: JSON.stringify({ message: userMessage }),
                 });
-
+    
                 const data = await response.json();
                 const botResponse = data.response || "Sorry, I couldn't get a response.";
                 chatbotHistory.innerHTML += `<div><strong>Bot:</strong> ${botResponse}</div>`;
@@ -172,7 +178,7 @@
                 chatbotHistory.scrollTop = chatbotHistory.scrollHeight; // Auto-scroll to bottom
             }
         }
-
+    
         sendChatBtn.addEventListener("click", handleChat);
         chatInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.shiftKey) {
