@@ -9,7 +9,7 @@ from flask import Flask, request, jsonify, render_template
 load_dotenv()
 
 app = Flask(__name__)
-
+#wwwwwww
 class CareerMatch:
     def __init__(self):
         self.base_url = 'https://api.careeronestop.org/v1/occupation/'
@@ -90,17 +90,50 @@ class CareerMatch:
                     hourlyWage = occupation_detail.get("Wages", {}).get("StateWagesList")[1].get("Median", "Data Not Available")
                 elif len(occupation_detail.get("Wages", {}).get("StateWagesList", [])) == 1:
                     annualWage = occupation_detail.get("Wages", {}).get("StateWagesList")[0].get("Median", "Data Not Available")
-                    hourlyWage = "Data Not Available"
+                    hourlyWage = "(Hourly Salary Data Not Available for this Occupation)"
                 else:
-                    annualWage, hourlyWage = "Data Not Available", "Data Not Available"
+                    annualWage, hourlyWage = "(Annual Salary Data Not Available for this Occupation)", "(Hourly Salary Data Not Available for this Occupation)"
 
-                stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
-                stateName = occupation_detail.get("Projections").get("Projections")[0].get("StateName", "")
-                nationGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[1]["PerCentChange"])
-                nationName = occupation_detail.get("Projections").get("Projections")[1].get("StateName", "")
+                if len(occupation_detail.get("Projections", "Projection Data Not Available for this Occupation")["Projections"]) > 1:
+                    stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
+                    stateName = occupation_detail.get("Projections").get("Projections")[0].get("StateName", "")
+                    nationGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[1]["PerCentChange"])
+                    nationName = occupation_detail.get("Projections").get("Projections")[1].get("StateName", "")
 
-                stateGrowth = "increase" if stateGrowthProjection > 0 else "decrease"
-                nationGrowth = "increase" if nationGrowthProjection > 0 else "decrease"
+                    # Determine if the growth is positive or negative
+                    if stateGrowthProjection > 0:
+                        stateGrowth = "increase"
+                    elif stateGrowthProjection == 0:
+                        stateGrowth = "not change"
+                    else:
+                        stateGrowth = "decrease"
+
+                    if nationGrowthProjection > 0:
+                        nationGrowth = "increase"
+                    elif nationGrowthProjection == 0:
+                        nationGrowth = "not change"
+                    else:
+                        nationGrowth = "decrease"
+
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}.\nWe predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}."
+                
+                elif len(occupation_detail.get("Projections", "Projection Data Not Available for this Occupation")["Projections"]) == 1:
+                    stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
+                    stateName = occupation_detail.get("Projections").get("Projections")[0].get("StateName", "")
+
+                    if stateGrowthProjection > 0:
+                        stateGrowth = "increase"
+                    elif stateGrowthProjection == 0:
+                        stateGrowth = "not change"
+                    else:
+                        stateGrowth = "decrease"
+
+
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}."
+                
+                else:
+                    statement = "Projection Data Not Available for this Occupation"
+
 
                 occupation_info = {
                     "Title": occupation_detail.get("OnetTitle"),
@@ -108,9 +141,9 @@ class CareerMatch:
                     "Salary Info": f"Annual Wage: ${annualWage}, Hourly Wage: ${hourlyWage}",
                     "Minimum Education Requirement": occupation_detail.get("EducationTraining", {}).get("EducationTitle", "N/A"),
                     "Tasks": [dwa["DwaTitle"] for dwa in occupation_detail.get("Dwas", [])],
-                    "Job Growth Prediction": f"{occupation_detail.get('BrightOutlook')} - This job is/has {occupation_detail.get('BrightOutlookCategory')} in employment.",
+                    "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
                     "Video Relating to the Career": occupation_detail.get("COSVideoURL"),
-                    "Job Growth Projections": f"We predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}. We predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}.",
+                    "Job Growth Projections": statement,
                     "Related Careers": occupation_detail.get("RelatedOnetTitles", {}),
                     "Training Programs": occupation_detail.get("TrainingPrograms", []),
                 }
@@ -175,7 +208,7 @@ class CareerMatch:
                     print(f"Description: {self.occupation_info['Description']}")
                     print(f"Salary Info: {self.occupation_info['Salary Info']}")
                     print(f"Minimum Education Requirement: {self.occupation_info['Minimum Education Requirement']}")
-                    print(f"Tasks: {self.occupation_info['Tasks'][:10]}")
+                    print(f"Tasks: {self.occupation_info['Tasks']}")
                     print(f"Job Growth Prediction: {self.occupation_info['Job Growth Prediction']}")
                     print(f"Video Relating to the Career: {self.occupation_info['Video Relating to the Career']}")
                     print(f"Job Growth Projections: {self.occupation_info['Job Growth Projections']}")

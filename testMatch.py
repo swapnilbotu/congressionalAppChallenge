@@ -90,21 +90,46 @@ class CareerMatch:
                     annualWage, hourlyWage = "(Annual Salary Data Not Available for this Occupation)", "(Hourly Salary Data Not Available for this Occupation)"
 
 
-                stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
-                stateName = occupation_detail.get("Projections").get("Projections")[0].get("StateName", "")
-                nationGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[1]["PerCentChange"])
-                nationName = occupation_detail.get("Projections").get("Projections")[1].get("StateName", "")
+                if len(occupation_detail.get("Projections", "Projection Data Not Available for this Occupation")["Projections"]) > 1:
+                    stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
+                    stateName = occupation_detail.get("Projections").get("Projections")[0].get("StateName", "")
+                    nationGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[1]["PerCentChange"])
+                    nationName = occupation_detail.get("Projections").get("Projections")[1].get("StateName", "")
 
-                # Determine if the growth is positive or negative
-                if stateGrowthProjection > 0:
-                    stateGrowth = "increase"
-                else:
-                    stateGrowth = "decrease"
+                    # Determine if the growth is positive or negative
+                    if stateGrowthProjection > 0:
+                        stateGrowth = "increase"
+                    elif stateGrowthProjection == 0:
+                        stateGrowth = "not change"
+                    else:
+                        stateGrowth = "decrease"
 
-                if nationGrowthProjection > 0:
-                    nationGrowth = "increase"
+                    if nationGrowthProjection > 0:
+                        nationGrowth = "increase"
+                    elif nationGrowthProjection == 0:
+                        nationGrowth = "not change"
+                    else:
+                        nationGrowth = "decrease"
+
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}.\nWe predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}."
+                
+                elif len(occupation_detail.get("Projections", "Projection Data Not Available for this Occupation")["Projections"]) == 1:
+                    stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
+                    stateName = occupation_detail.get("Projections").get("Projections")[0].get("StateName", "")
+
+                    if stateGrowthProjection > 0:
+                        stateGrowth = "increase"
+                    elif stateGrowthProjection == 0:
+                        stateGrowth = "not change"
+                    else:
+                        stateGrowth = "decrease"
+
+
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}."
+                
                 else:
-                    nationGrowth = "decrease"
+                    statement = "Projection Data Not Available for this Occupation"
+
 
                 occupation_info = {
                     "Title": occupation_detail.get("OnetTitle"),
@@ -114,7 +139,7 @@ class CareerMatch:
                     "Tasks": [dwa["DwaTitle"] for dwa in occupation_detail.get("Dwas", [])],
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
                     "Video Relating to the Career": occupation_detail.get("COSVideoURL"),
-                    "Job Growth Projections": f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}.\nWe predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}.",
+                    "Job Growth Projections": statement,
                     "Related Careers": occupation_detail.get("RelatedOnetTitles", {}),
                     "Training Programs": occupation_detail.get("TrainingPrograms", []),
                 }
