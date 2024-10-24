@@ -34,7 +34,7 @@ class CareerChatbot:
             else:
                 prompt = f"User is considering a career in {self.career_of_interest}. "
 
-            prompt += """Write in a direct, personable, casual tone. Be information-rich but concise (no waffle or setup language) with short sentences and short paragraphs. Use jargon-free, clear language. Clarity is key. Use bullet points, numbered lists, tables to improve readability. Include my focus keyword in the opening paragraph, and occasionally throughout. Use active voice; avoid passive voice. Address the reader with 'you' and 'your'. Minimise the use of adjectives and adverbs. DO NOT use unnecessary words like: ensure, crucial, etc."""
+            prompt += """Write in a direct, personable, casual tone. Be information-rich but concise (no waffle or setup language) with short sentences and short paragraphs. Use bullet points, numbered lists, and clearly spaced content to improve readability. Focus on clarity, use jargon-free language. Avoid passive voice and overuse of adjectives or adverbs. Format career paths as a readable list instead of a table."""
 
             for entry in self.history:
                 prompt += f"{entry}\n"
@@ -44,12 +44,45 @@ class CareerChatbot:
             model = genai.GenerativeModel("gemini-1.5-flash")
             response = model.generate_content(prompt)
 
+            # Clean and format the response
+            formatted_response = self.format_response(response.text)
+
             # Store user input and chatbot response in history
             self.history.append(f"You: {user_input}")
-            self.history.append(f"Chatbot: {response.text}")
+            self.history.append(f"Chatbot: {formatted_response}")
 
             self.current_state = "ask_career"  # Reset to ask for a new career after providing info
-            return response.text
+            return formatted_response
+
+    def format_response(self, response_text):
+        """Cleans and formats the chatbot response for better readability."""
+        # Clean up unwanted symbols and format the content
+        cleaned_response = response_text.replace("*", "")  # Remove unnecessary asterisks
+
+        # Add custom line breaks for better readability
+        formatted_response = cleaned_response.replace(". ", ".\n\n")
+        formatted_response = formatted_response.replace("**", "")  # Remove double asterisks from markdown
+
+        # Special formatting for the 'common career paths' section
+        if "common paths in computer science" in formatted_response:
+            formatted_response = formatted_response.replace("|", "")  # Remove any table symbols
+            # Custom formatting for career paths
+            formatted_response += (
+                "\n\nHere are some common career paths in computer science:\n\n"
+                "- **Software Development**: Write code for software applications.\n"
+                "  Skills needed: programming, problem-solving, design.\n\n"
+                "- **Web Development**: Design and build websites.\n"
+                "  Skills needed: HTML, CSS, JavaScript, design principles.\n\n"
+                "- **Data Science**: Analyze data to find insights.\n"
+                "  Skills needed: statistics, machine learning, data visualization.\n\n"
+                "- **Artificial Intelligence**: Build intelligent machines.\n"
+                "  Skills needed: machine learning, algorithms, computer vision.\n\n"
+                "- **Cybersecurity**: Protect computer systems from attacks.\n"
+                "  Skills needed: network security, ethical hacking, cryptography.\n"
+            )
+
+        return formatted_response
+
 
 def main():
     print("\n\n\n\n\n\n\n\n\nWelcome to the Career Advisor Chatbot!")

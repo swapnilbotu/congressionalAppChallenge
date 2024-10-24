@@ -11,7 +11,6 @@ class SimpleWSGIApp:
         # Initialize CareerChatbot with default values
         self.chatbot = CareerChatbot()
         
-
     def __call__(self, environ, start_response):
         path = environ.get('PATH_INFO', '/')
         
@@ -60,6 +59,7 @@ class SimpleWSGIApp:
             <div class="careers-background">
                 <div class="careers-section">
                     <h2>Find Your Career</h2>
+                    <p>Don't know what career you belong to? Click on the link below to take a short quiz to find your career! Then use that career below to get more occupations and details about it!</p>
                     <form method="POST" action="/get_careers">
                         <label for="keyword">Keyword:</label>
                         <input type="text" id="keyword" name="keyword" required><br>
@@ -74,7 +74,6 @@ class SimpleWSGIApp:
         """
         start_response('200 OK', [('Content-Type', 'text/html')])
         return [response_body.encode('utf-8')]
-
 
     def get_careers(self, environ, start_response):
         content_length = int(environ.get('CONTENT_LENGTH', 0))
@@ -127,13 +126,8 @@ class SimpleWSGIApp:
         post_data = environ['wsgi.input'].read(content_length).decode('utf-8')
         form_data = parse_qs(post_data)
 
-        print("Form data received:", form_data)
-
         onet_id_list = form_data.get('onet_id', [])
         zip_code_list = form_data.get('zip_code', [])
-
-        print("onet_id_list:", onet_id_list)
-        print("zip_code_list:", zip_code_list)
 
         onet_id = onet_id_list[0] if onet_id_list else None
         zip_code = zip_code_list[0] if zip_code_list else None
@@ -150,10 +144,13 @@ class SimpleWSGIApp:
 
         details_content = '<div class="careers-background"><div class="careers-section"><h2>Occupation Details:</h2>'
 
+        
+        # Display other occupation information
         for key, value in occupation_info.items():
             if key not in ['Related Careers', 'Training Programs', 'Tasks']:
                 details_content += f'<strong>{key}:</strong> {value}<br><br>'
 
+        # Display related careers, tasks, and training programs if available
         related_careers = occupation_info.get('Related Careers', {})
         if related_careers:
             details_content += '<strong>Related Careers:</strong><ul>'
@@ -188,6 +185,8 @@ class SimpleWSGIApp:
         start_response('200 OK', [('Content-Type', 'text/html')])
         return [response_body.encode('utf-8')]
 
+
+
     def get_chatbot_response(self, environ, start_response):
         content_length = int(environ.get('CONTENT_LENGTH', 0))
         post_data = environ['wsgi.input'].read(content_length).decode('utf-8')
@@ -221,8 +220,8 @@ class SimpleWSGIApp:
             start_response('404 Not Found', [('Content-Type', 'text/html')])
             return [b"404 Not Found"]
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = SimpleWSGIApp()
-    server = make_server('localhost', 8000, app)
+    server = make_server('', 8000, app)
     print("Serving on http://localhost:8000...")
     server.serve_forever()
