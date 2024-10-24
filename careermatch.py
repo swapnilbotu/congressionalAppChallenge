@@ -90,7 +90,7 @@ class CareerMatch:
                     hourlyWage = occupation_detail.get("Wages", {}).get("StateWagesList")[1].get("Median", "Data Not Available")
                 elif len(occupation_detail.get("Wages", {}).get("StateWagesList", [])) == 1:
                     annualWage = occupation_detail.get("Wages", {}).get("StateWagesList")[0].get("Median", "Data Not Available")
-                    hourlyWage = "Data Not Available"
+                    hourlyWage = "(Hourly Salary Data Not Available for this Occupation)"
                 else:
                     annualWage, hourlyWage = "(Annual Salary Data Not Available for this Occupation)", "(Hourly Salary Data Not Available for this Occupation)"
 
