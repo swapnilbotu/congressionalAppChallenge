@@ -92,7 +92,7 @@ class CareerMatch:
                     annualWage = occupation_detail.get("Wages", {}).get("StateWagesList")[0].get("Median", "Data Not Available")
                     hourlyWage = "Data Not Available"
                 else:
-                    annualWage, hourlyWage = "Data Not Available", "Data Not Available"
+                    annualWage, hourlyWage = "(Annual Salary Data Not Available for this Occupation)", "(Hourly Salary Data Not Available for this Occupation)"
 
                 if len(occupation_detail.get("Projections", "Projection Data Not Available for this Occupation")["Projections"]) > 1:
                     stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
