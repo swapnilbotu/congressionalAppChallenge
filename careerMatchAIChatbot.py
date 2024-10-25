@@ -1,7 +1,7 @@
 import google.generativeai as genai
 
 # Configure the API key directly (not recommended for production)
-genai.configure(api_key="AIzaSyAPLEHp-EgmbZgMxhQXZ1LVrd5BcFBhMFo")
+genai.configure(api_key="AIzaSyD9QLCf3s2snI7XULIaVkoyQ2rAt9PEtHI")
 
 class CareerChatbot:
     def __init__(self):
@@ -58,14 +58,17 @@ class CareerChatbot:
         """Cleans and formats the chatbot response for better readability."""
         # Clean up unwanted symbols and format the content
         cleaned_response = response_text.replace("*", "")  # Remove unnecessary asterisks
+        formatted_response = cleaned_response.replace("#", "")
 
         # Add custom line breaks for better readability
-        formatted_response = cleaned_response.replace(". ", ".\n\n")
+        formatted_response = formatted_response.replace(". ", ".\n\n")
         formatted_response = formatted_response.replace("**", "")  # Remove double asterisks from markdown
+        formatted_response = formatted_response.replace("#", "")
 
         # Special formatting for the 'common career paths' section
         if "common paths in computer science" in formatted_response:
-            formatted_response = formatted_response.replace("|", "")  # Remove any table symbols
+            formatted_response = formatted_response.replace("|", "")
+            formatted_response = formatted_response.replace("#", "")  # Remove any table symbols
             # Custom formatting for career paths
             formatted_response += (
                 "\n\nHere are some common career paths in computer science:\n\n"

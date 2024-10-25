@@ -111,7 +111,7 @@ class CareerMatch:
                     "Description": occupation_detail.get("OnetDescription"),
                     "Salary Info": f"Annual Wage: ${annualWage}, Hourly Wage: ${hourlyWage}",
                     "Minimum Education Requirement": occupation_detail.get("EducationTraining", {}).get("EducationTitle", "N/A"),
-                    "Tasks": [dwa["DwaTitle"] for dwa in occupation_detail.get("Dwas", [])],
+                    "Tasks": list([dwa["DwaTitle"] for dwa in occupation_detail.get("Dwas", [])])[:10],
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
                     "Video Relating to the Career": occupation_detail.get("COSVideoURL"),
                     "Job Growth Projections": f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}.\nWe predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}.",

@@ -3,6 +3,7 @@ import re
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, render_template
+import itertools
 
 # Load environment variables from .env file
 load_dotenv()
@@ -114,7 +115,7 @@ class CareerMatch:
                     else:
                         nationGrowth = "decrease"
 
-                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}.\nWe predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}."
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by {stateGrowthProjection}% in {stateName}.\nWe predict the employment for this job to {nationGrowth} by {nationGrowthProjection}% in {nationName}."
                 
                 elif len(occupation_detail.get("Projections", "Projection Data Not Available for this Occupation")["Projections"]) == 1:
                     stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
@@ -127,7 +128,7 @@ class CareerMatch:
                     else:
                         stateGrowth = "decrease"
 
-                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}."
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by {stateGrowthProjection}% in {stateName}."
                 
                 else:
                     statement = "Projection Data Not Available for this Occupation"
@@ -144,18 +145,27 @@ class CareerMatch:
                 else:
                     career_video_html = "No career video available"
 
+                tasks = []
+                for i in range(10):
+                    dwa = occupation_detail.get("Dwas", {})[i]
+                    task = dwa.get("DwaTitle")
+                    tasks.append(task)
+
+                relatedCareers = dict(itertools.islice(occupation_detail.get("RelatedOnetTitles", {}).items(), 8)) 
+
                 occupation_info = {
                     "Title": occupation_detail.get("OnetTitle"),
                     "Description": occupation_detail.get("OnetDescription"),
                     "Salary Info": f"Annual Wage: ${annualWage}, Hourly Wage: ${hourlyWage}",
                     "Minimum Education Requirement": occupation_detail.get("EducationTraining", {}).get("EducationTitle", "N/A"),
-                    "Tasks": [dwa["DwaTitle"] for dwa in occupation_detail.get("Dwas", [])],
+                    "Tasks": tasks,
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
-                    "Video Relating to the Career": career_video_html,  # Career video as clickable link
+                    "Video Relating to the Career": career_video_html,
                     "Job Growth Projections": statement,
-                    "Related Careers": occupation_detail.get("RelatedOnetTitles", {}),
-                    "Training Programs": occupation_detail.get("TrainingPrograms", []),
-                    "Volunteer Link": volunteer_link_html  # Volunteer link as clickable link
+                    "Related Careers": relatedCareers,
+                    "Training Programs": occupation_detail.get("TrainingPrograms", [])[:10],
+                    "Volunteer Link": volunteer_link_html,
+                    
                 }
 
                 return occupation_info
@@ -196,44 +206,23 @@ class CareerMatch:
                     print("Valid zip code and corresponds to a real location.")
                     break
                 else:
-                    print("Valid zip code but does not correspond to a real location. Try again.")
+                    print("Zip code is not valid. Please try again.")
             else:
-                print("Invalid zip code. Try again.")
+                print("Invalid zip code format. Please enter a valid 5-digit zip code.")
 
-        occupation_details = self.find_career(keyword)
-
+        occupations = self.find_career(keyword)
+        if occupations:
+            for occupation in occupations:
+                print(f"Title: {occupation['OnetTitle']}")
+                print(f"Description: {occupation['OccupationDescription']}\n")
+        
+        onetID = input("Enter the OnetCode of the occupation you want to know more about: ")
+        occupation_details = self.detailed_occupation_data(onetID, self.location)
+        
         if occupation_details:
-            print(f"List of occupations matching {keyword}:")
-            for idx, occupation in enumerate(occupation_details):
-                print(f"{idx + 1}. {occupation['OnetTitle']} - {occupation['OccupationDescription'][:200]}...")
-
-            # Ask user for occupation details selection
-            try:
-                occupation_choice = int(input("Enter the number of the occupation you're interested in: ")) - 1
-                if occupation_choice < 0 or occupation_choice >= len(occupation_details):
-                    print("Invalid choice. Exiting.")
-                    return
-            except ValueError:
-                print("Invalid input. Exiting.")
-                return
-
-            occupation_id = occupation_details[occupation_choice]['OnetCode']
-            detailed_occupation = self.detailed_occupation_data(occupation_id, self.location)
-
-            print(f"\nDetailed information for {detailed_occupation['Title']}:\n")
-            print(f"Description: {detailed_occupation['Description']}")
-            print(f"Salary: {detailed_occupation['Salary Info']}")
-            print(f"Minimum Education Requirement: {detailed_occupation['Minimum Education Requirement']}")
-            print(f"Tasks: {', '.join(detailed_occupation['Tasks'])}")
-            print(f"Job Growth Projections: {detailed_occupation['Job Growth Projections']}")
-            print(f"Related Careers: {', '.join(detailed_occupation['Related Careers'].keys())}")
-            print(f"Volunteer Link: {detailed_occupation['Volunteer Link']}")
-            print(f"Career Video: {detailed_occupation['Video Relating to the Career']}")
-
-        else:
-            print(f"No occupation details found for {keyword}.")
-
+            for key, value in occupation_details.items():
+                print(f"{key}: {value}")
 
 if __name__ == "__main__":
-    cm = CareerMatch()
-    cm.main()
+    career_match = CareerMatch()
+    career_match.main()
