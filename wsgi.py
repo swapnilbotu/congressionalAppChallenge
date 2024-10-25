@@ -1,5 +1,7 @@
 from wsgiref.simple_server import make_server
 from urllib.parse import parse_qs
+
+from flask import render_template
 from careermatch import CareerMatch
 import os
 import json
@@ -11,16 +13,15 @@ class SimpleWSGIApp:
         # Initialize CareerChatbot with default values
         self.chatbot = CareerChatbot()
         
-
     def __call__(self, environ, start_response):
         path = environ.get('PATH_INFO', '/')
         
         if path == '/':
             return self.serve_html(environ, start_response, 'career.html')
-        elif path == '/index.html':  
-            return self.serve_html(environ, start_response, 'index.html')  
-        elif path == '/aboutus.html':  
-            return self.serve_html(environ, start_response, 'aboutus.html')  
+        elif path == '/index.html':
+            return self.serve_html(environ, start_response, 'index.html')
+        elif path == '/aboutus.html':
+            return self.about_us(environ, start_response)  # Call the about_us method
         elif path == '/get_careers':
             if environ['REQUEST_METHOD'] == 'POST':
                 return self.get_careers(environ, start_response)
@@ -56,10 +57,10 @@ class SimpleWSGIApp:
             <link rel="stylesheet" href="styles.css">
             <title>Career Finder</title>
         </head>
-        <body>
-            <div class="careers-background">
+        <body style="background-image: url('https://images.unsplash.com/photo-1503480207415-fdddcc21d5fc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; height: 100vh; margin: 0;">
                 <div class="careers-section">
                     <h2>Find Your Career</h2>
+                    <p>Don't know what career you belong to? Click on the link below to take a short quiz to find your career! Then use that career below to get more occupations and details about it!</p>
                     <form method="POST" action="/get_careers">
                         <label for="keyword">Keyword:</label>
                         <input type="text" id="keyword" name="keyword" required><br>
@@ -68,7 +69,6 @@ class SimpleWSGIApp:
                         <input type="submit" value="Search">
                     </form>
                 </div>
-            </div>
         </body>
         </html>
         """
@@ -86,6 +86,10 @@ class SimpleWSGIApp:
 
         self.occupations = self.api.find_career(keyword)
 
+        if not self.occupations:  # Add this check
+            start_response('404 Not Found', [('Content-Type', 'text/html')])
+            return [b"No careers found for the given keyword."]
+
         job_listings = "".join(
             f"""
             <div class="job-listing">
@@ -102,8 +106,7 @@ class SimpleWSGIApp:
             <link rel="stylesheet" href="styles.css">
             <title>Career Search Results</title>
         </head>
-        <body>
-            <div class="careers-background">
+        <body style="background-image: url('https://images.unsplash.com/photo-1503480207415-fdddcc21d5fc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; height: 100vh; margin: 0;">
                 <div class="careers-section">
                     <h2>Choose an Occupation:</h2>
                     <form method="POST" action="/get_details">
@@ -111,10 +114,9 @@ class SimpleWSGIApp:
                             {job_listings}
                         </div>
                         <input type="hidden" name="zip_code" value="{zip_code}">
-                        <input type="submit" value="Get Details">
+                        <input type="submit" value="Get Details" class="submit-button">
                     </form>
                 </div>
-            </div>
         </body>
         </html>
         """
@@ -122,18 +124,14 @@ class SimpleWSGIApp:
         start_response('200 OK', [('Content-Type', 'text/html')])
         return [response_body.encode('utf-8')]
 
+
     def get_details(self, environ, start_response):
         content_length = int(environ.get('CONTENT_LENGTH', 0))
         post_data = environ['wsgi.input'].read(content_length).decode('utf-8')
         form_data = parse_qs(post_data)
 
-        print("Form data received:", form_data)
-
         onet_id_list = form_data.get('onet_id', [])
         zip_code_list = form_data.get('zip_code', [])
-
-        print("onet_id_list:", onet_id_list)
-        print("zip_code_list:", zip_code_list)
 
         onet_id = onet_id_list[0] if onet_id_list else None
         zip_code = zip_code_list[0] if zip_code_list else None
@@ -147,6 +145,7 @@ class SimpleWSGIApp:
         if not occupation_info:
             start_response('500 Internal Server Error', [('Content-Type', 'text/html')])
             return [b"An error occurred while fetching the occupation details."]
+
 
         details_content = '<div class="careers-background"><div class="careers-section"><h2>Occupation Details:</h2>'
 
@@ -181,12 +180,16 @@ class SimpleWSGIApp:
         else:
             details_content += '<strong>Training Programs:</strong> Not available<br><br>'
 
-        details_content += '</div></div></body></html>'
+        details_content += '</div></div>'
 
         response_body = f'<html><head><link rel="stylesheet" href="styles.css"><title>Occupation Details</title></head><body>{details_content}'
 
         start_response('200 OK', [('Content-Type', 'text/html')])
         return [response_body.encode('utf-8')]
+
+
+
+
 
     def get_chatbot_response(self, environ, start_response):
         content_length = int(environ.get('CONTENT_LENGTH', 0))
@@ -200,17 +203,42 @@ class SimpleWSGIApp:
         start_response('200 OK', [('Content-Type', 'application/json')])
         return [json.dumps({"response": response}).encode('utf-8')]
 
+    import os
+
     def serve_static(self, environ, start_response):
         path = environ.get('PATH_INFO', '').lstrip('/')
         full_path = os.path.join(os.path.dirname(__file__), path)
         
         try:
-            with open(full_path, 'rb') as f:
-                start_response('200 OK', [('Content-Type', 'text/css')])
-                return [f.read()]
+            # Determine the content type based on the file extension
+            if path.endswith('.css'):
+                content_type = 'text/css'
+                with open(full_path, 'rb') as f:
+                    start_response('200 OK', [('Content-Type', content_type)])
+                    return [f.read()]
+            elif path.endswith('.jpg') or path.endswith('.jpeg'):
+                content_type = 'image/jpeg'
+                with open(full_path, 'rb') as f:
+                    start_response('200 OK', [('Content-Type', content_type)])
+                    return [f.read()]
+            elif path.endswith('.png'):
+                content_type = 'image/png'
+                with open(full_path, 'rb') as f:
+                    start_response('200 OK', [('Content-Type', content_type)])
+                    return [f.read()]
+            elif path.endswith('.gif'):
+                content_type = 'image/gif'
+                with open(full_path, 'rb') as f:
+                    start_response('200 OK', [('Content-Type', content_type)])
+                    return [f.read()]
+            else:
+                start_response('404 Not Found', [('Content-Type', 'text/html')])
+                return [b"404 Not Found"]
         except IOError:
             start_response('404 Not Found', [('Content-Type', 'text/html')])
             return [b"404 Not Found"]
+
+
 
     def serve_html(self, environ, start_response, filename):
         try:
@@ -220,9 +248,19 @@ class SimpleWSGIApp:
         except IOError:
             start_response('404 Not Found', [('Content-Type', 'text/html')])
             return [b"404 Not Found"]
+        
+    def about_us(self, environ, start_response):
+        try:
+            with open('aboutus.html', 'rb') as f:  # Make sure the path is correct
+                start_response('200 OK', [('Content-Type', 'text/html')])
+                return [f.read()]
+        except IOError:
+            start_response('404 Not Found', [('Content-Type', 'text/html')])
+            return [b"404 Not Found"]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = SimpleWSGIApp()
-    server = make_server('localhost', 8000, app)
+    server = make_server('', 8000, app)
     print("Serving on http://localhost:8000...")
     server.serve_forever()

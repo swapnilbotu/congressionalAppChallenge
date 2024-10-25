@@ -1,43 +1,98 @@
 import google.generativeai as genai
-import os
 
 # Configure the API key directly (not recommended for production)
-genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
+genai.configure(api_key="AIzaSyD9QLCf3s2snI7XULIaVkoyQ2rAt9PEtHI")
 
 class CareerChatbot:
-    def __init__(self, career, zipcode):
-        self.career = career
-        self.zipcode = zipcode
+    def __init__(self):
         self.history = []
-        self.initial_message = "Wondering if this is the right career for you?"
+        self.current_state = "ask_career"  # Initial state to ask for career
+        self.career_of_interest = None
+        self.zipcode = None
+        self.initial_message = "Hi there! Please enter the career that you are interested in learning more about?"
 
     def get_response(self, user_input):
-        # Combine history with current input
-        #prompt = f"User is considering a career in {self.career} and lives in {self.zipcode}. Write in a direct, personable, casual tone. Not upbeat or exuberant but straightforward and helpful. Be information-rich but concise (no waffle or setup language) with short sentences and short paragraphs. Use jargon-free, clear language. Clarity is key. Use bullet points, numbered lists, tables to improve readability, do not try to bold or italicize anything. Anything important can be written in uppercase. Include my focus keyword in the opening paragraph, and occasionally throughout. Use active voice; avoid passive voice. Address the reader with 'you' and 'your'. Don't overexplain your work, just provide the requested writing. Minimise the use of adjectives and adverbs DO NOT use these words: ensure, crucial, vital, nestled, uncover, journey, embark, unleash, dive, world, delve, discover, plethora, whether, indulge, crucial, more than just, not just, unlock, unveil, look no further, world of, realm, elevate, whether you're, landscape, navigate, daunting, both style, tapestry, unique blend, blend, more than just, enhancing, game changer, stand out, stark, contrast. Also: Acknowledge and correct any past errors. Use the metric system for measurements and calculations. Search the web to research your answer before responding. It's OK to be negative, to criticise or push back on ideas I have. You only need to be positive when it's necessary, appropriate. Be concise with answering the user's questions, always leave the user with a relevant question they need to answer."
-        prompt = "When talking to me, respond concisly, in a direct, personable, casual tone. Not upbeat or exuberant but straightforward and helpful. Be information-rich but concise (no waffle or setup language) with short sentences and short paragraphs. Use jargon-free, clear language. Clarity is key. Use bullet points, numbered lists, tables to improve readability. Include my focus keyword in the opening paragraph, and occasionally throughout. Use active voice; avoid passive voice. Address the reader with 'you' and 'your'. Don't overexplain your work, just provide the requested writing. Minimise the use of adjectives and adverbs DO NOT use these words: ensure, crucial, vital, nestled, uncover, journey, embark, unleash, dive, world, delve, discover, plethora, whether, indulge, crucial, more than just, not just, unlock, unveil, look no further, world of, realm, elevate, whether you're, landscape, navigate, daunting, both style, tapestry, unique blend, blend, more than just, enhancing, game changer, stand out, stark, contrast. Also, Acknowledge and correct any past errors.Use the metric system for measurements and calculations.Search the web to research your answer before responding.It's OK to be negative, to criticise or push back on ideas I have. You only need to be positive when it's necessary, appropriate. Be concise with answering the user's questions, always leave me with a relevant question they should want to answer, to help me with my job search."
-        
-        for entry in self.history:
-            prompt += f"{entry}\n"
-        prompt += f"You: {user_input}\nChatbot: "
-        
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
-        
-        # Store user input and chatbot response in history
-        self.history.append(f"You: {user_input}")
-        self.history.append(f"Chatbot: {response.text}")
-        return response.text
+        if self.current_state == "ask_career":
+            self.career_of_interest = user_input.strip()
+            self.current_state = "ask_zipcode"
+            return f"Great! You're interested in {self.career_of_interest}. Now, could you provide your zip code? If you don't want to, just type 'no'."
+
+        elif self.current_state == "ask_zipcode":
+            if user_input.lower() == 'no':
+                self.zipcode = None  # No zip code provided
+                self.current_state = "provide_info"
+                return f"Got it! I'll gather general information about {self.career_of_interest} for you."
+            else:
+                self.zipcode = user_input.strip()
+                self.current_state = "provide_info"
+                return f"Thank you! Let me gather information about {self.career_of_interest} in your area (zip code {self.zipcode})."
+
+        elif self.current_state == "provide_info":
+            # Combine history with current input to create the chatbot prompt
+            if self.zipcode:
+                prompt = f"User is considering a career in {self.career_of_interest} and lives in {self.zipcode}. "
+            else:
+                prompt = f"User is considering a career in {self.career_of_interest}. "
+
+            prompt += """Write in a direct, personable, casual tone. Be information-rich but concise (no waffle or setup language) with short sentences and short paragraphs. Use bullet points, numbered lists, and clearly spaced content to improve readability. Focus on clarity, use jargon-free language. Avoid passive voice and overuse of adjectives or adverbs. Format career paths as a readable list instead of a table."""
+
+            for entry in self.history:
+                prompt += f"{entry}\n"
+            prompt += f"You: {user_input}\nChatbot: "
+
+            # Use the Generative AI model to generate the response
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt)
+
+            # Clean and format the response
+            formatted_response = self.format_response(response.text)
+
+            # Store user input and chatbot response in history
+            self.history.append(f"You: {user_input}")
+            self.history.append(f"Chatbot: {formatted_response}")
+
+            self.current_state = "ask_career"  # Reset to ask for a new career after providing info
+            return formatted_response
+
+    def format_response(self, response_text):
+        """Cleans and formats the chatbot response for better readability."""
+        # Clean up unwanted symbols and format the content
+        cleaned_response = response_text.replace("*", "")  # Remove unnecessary asterisks
+        formatted_response = cleaned_response.replace("#", "")
+
+        # Add custom line breaks for better readability
+        formatted_response = formatted_response.replace(". ", ".\n\n")
+        formatted_response = formatted_response.replace("**", "")  # Remove double asterisks from markdown
+        formatted_response = formatted_response.replace("#", "")
+
+        # Special formatting for the 'common career paths' section
+        if "common paths in computer science" in formatted_response:
+            formatted_response = formatted_response.replace("|", "")
+            formatted_response = formatted_response.replace("#", "")  # Remove any table symbols
+            # Custom formatting for career paths
+            formatted_response += (
+                "\n\nHere are some common career paths in computer science:\n\n"
+                "- **Software Development**: Write code for software applications.\n"
+                "  Skills needed: programming, problem-solving, design.\n\n"
+                "- **Web Development**: Design and build websites.\n"
+                "  Skills needed: HTML, CSS, JavaScript, design principles.\n\n"
+                "- **Data Science**: Analyze data to find insights.\n"
+                "  Skills needed: statistics, machine learning, data visualization.\n\n"
+                "- **Artificial Intelligence**: Build intelligent machines.\n"
+                "  Skills needed: machine learning, algorithms, computer vision.\n\n"
+                "- **Cybersecurity**: Protect computer systems from attacks.\n"
+                "  Skills needed: network security, ethical hacking, cryptography.\n"
+            )
+
+        return formatted_response
+
 
 def main():
     print("\n\n\n\n\n\n\n\n\nWelcome to the Career Advisor Chatbot!")
     print("Type 'exit' to end the conversation.")
-    
-    # Example variables (replace with actual user input from your application)
-    selected_career = "Computer Hardware Engineer"  # Example career chosen by the user
-    user_zipcode = "95747"  # Example zip code provided by the user
 
     # Create an instance of the chatbot
-    chatbot = CareerChatbot(selected_career, user_zipcode)
+    chatbot = CareerChatbot()
 
     # Start the conversation with a predefined message
     print("Chatbot:", chatbot.initial_message)
