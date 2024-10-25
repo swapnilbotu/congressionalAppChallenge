@@ -1,7 +1,7 @@
 import google.generativeai as genai
 
 # Configure the API key directly (not recommended for production)
-genai.configure(api_key="AIzaSyD9QLCf3s2snI7XULIaVkoyQ2rAt9PEtHI")
+genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 
 class CareerChatbot:
     def __init__(self):
