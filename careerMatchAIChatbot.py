@@ -1,4 +1,5 @@
 import google.generativeai as genai
+import os
 
 # Configure the API key directly (not recommended for production)
 genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
