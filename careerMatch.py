@@ -2,14 +2,14 @@ import requests
 import re
 import os
 from dotenv import load_dotenv
-from urllib.parse import parse_qs
 from flask import Flask, request, jsonify, render_template
+import itertools
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
-#wwwwwww
+
 class CareerMatch:
     def __init__(self):
         self.base_url = 'https://api.careeronestop.org/v1/occupation/'
@@ -115,7 +115,7 @@ class CareerMatch:
                     else:
                         nationGrowth = "decrease"
 
-                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}.\nWe predict the employment for this job to {nationGrowth} by %{nationGrowthProjection} in {nationName}."
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by {stateGrowthProjection}% in {stateName}.\nWe predict the employment for this job to {nationGrowth} by {nationGrowthProjection}% in {nationName}."
                 
                 elif len(occupation_detail.get("Projections", "Projection Data Not Available for this Occupation")["Projections"]) == 1:
                     stateGrowthProjection = int(occupation_detail.get("Projections").get("Projections")[0]["PerCentChange"])
@@ -128,24 +128,44 @@ class CareerMatch:
                     else:
                         stateGrowth = "decrease"
 
-
-                    statement = f"\nWe predict the employment for this job to {stateGrowth} by %{stateGrowthProjection} in {stateName}."
+                    statement = f"\nWe predict the employment for this job to {stateGrowth} by {stateGrowthProjection}% in {stateName}."
                 
                 else:
                     statement = "Projection Data Not Available for this Occupation"
 
+                # Construct the volunteer link
+                volunteer_link = f"https://www.volunteermatch.org/search/?l={location}&k={occupation_detail.get('OnetTitle')}&v=true"
+                # Format it as an HTML link
+                volunteer_link_html = f'<a href="{volunteer_link}" target="_blank">Find Volunteer Opportunities</a>'
+
+                # Format career video link as an HTML link if available
+                career_video_url = occupation_detail.get("COSVideoURL")
+                if career_video_url:
+                    career_video_html = f'<a href="{career_video_url}" target="_blank">Watch Career Video</a>'
+                else:
+                    career_video_html = "No career video available"
+
+                tasks = []
+                for i in range(10):
+                    dwa = occupation_detail.get("Dwas", {})[i]
+                    task = dwa.get("DwaTitle")
+                    tasks.append(task)
+
+                relatedCareers = dict(itertools.islice(occupation_detail.get("RelatedOnetTitles", {}).items(), 8)) 
 
                 occupation_info = {
                     "Title": occupation_detail.get("OnetTitle"),
                     "Description": occupation_detail.get("OnetDescription"),
                     "Salary Info": f"Annual Wage: ${annualWage}, Hourly Wage: ${hourlyWage}",
                     "Minimum Education Requirement": occupation_detail.get("EducationTraining", {}).get("EducationTitle", "N/A"),
-                    "Tasks": [dwa["DwaTitle"] for dwa in occupation_detail.get("Dwas", [])],
+                    "Tasks": tasks,
                     "Job Growth Prediction": str(occupation_detail.get("BrightOutlook")) + ". This job is/has " + str(occupation_detail.get("BrightOutlookCategory")) + " in employment.",
-                    "Video Relating to the Career": occupation_detail.get("COSVideoURL"),
+                    "Video Relating to the Career": career_video_html,
                     "Job Growth Projections": statement,
-                    "Related Careers": occupation_detail.get("RelatedOnetTitles", {}),
-                    "Training Programs": occupation_detail.get("TrainingPrograms", []),
+                    "Related Careers": relatedCareers,
+                    "Training Programs": occupation_detail.get("TrainingPrograms", [])[:10],
+                    "Volunteer Link": volunteer_link_html,
+                    
                 }
 
                 return occupation_info
@@ -186,96 +206,23 @@ class CareerMatch:
                     print("Valid zip code and corresponds to a real location.")
                     break
                 else:
-                    print("Valid zip code but does not correspond to a real location. Please try again.")
+                    print("Zip code is not valid. Please try again.")
             else:
-                print("Invalid zip code. Please enter a valid 5 or 9-digit zip code.")
+                print("Invalid zip code format. Please enter a valid 5-digit zip code.")
 
-        onet_codes = self.find_career(keyword)
-
-        if onet_codes:
-            print("Available Occupations:")
-            for idx, career in enumerate(onet_codes):
-                print(f"{idx + 1}: {career['OnetTitle']} (Code: {career['OnetCode']})")
-
-            choice = int(input("Select an occupation by number: ")) - 1
-            if 0 <= choice < len(onet_codes):
-                selected_onet_code = onet_codes[choice]['OnetCode']
-
-                self.occupation_info = self.detailed_occupation_data(selected_onet_code, self.location)
-
-                if self.occupation_info:
-                    print(f"\n\n\nTitle: {self.occupation_info['Title']}")
-                    print(f"Description: {self.occupation_info['Description']}")
-                    print(f"Salary Info: {self.occupation_info['Salary Info']}")
-                    print(f"Minimum Education Requirement: {self.occupation_info['Minimum Education Requirement']}")
-                    print(f"Tasks: {self.occupation_info['Tasks']}")
-                    print(f"Job Growth Prediction: {self.occupation_info['Job Growth Prediction']}")
-                    print(f"Video Relating to the Career: {self.occupation_info['Video Relating to the Career']}")
-                    print(f"Job Growth Projections: {self.occupation_info['Job Growth Projections']}")
-                    print(f"Training Programs: {self.occupation_info['Training Programs'][:10]}")
-                    
-                    # Fetch certifications and display at the end
-                    certifications = self.list_certifications(self.occupation_info["Title"])
-                    if certifications:
-                        print("\nCertifications available:")
-                        for cert in certifications:
-                            print(f"Name: {cert['Name']}")
-                            print(f"Organization: {cert['Organization']}")
-                            print(f"URL: {cert['Url']}")
-                            print(f"Description: {cert['Description']}")
-
-                            # Displaying detailed certification info
-                            for cert_detail in cert.get('CertDetails', []):
-                                print(f"    Title: {cert_detail['Title']}")
-                                print(f"    Certifying Body: {cert_detail['CertifyingBody']}")
-                            print()
-                    else:
-                        print("No certifications found for this occupation.")
-                else:
-                    print("Occupation details unavailable.")
-            else:
-                print("Invalid choice. Please select a number from the list.")
-        else:
-            print("No occupations found for the given keyword.")
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route('/careerfinder', methods=['GET', 'POST'])
-def career_finder():
-    if request.method == 'POST':
-        keyword = request.form.get('keyword')
-        zipcode = request.form.get('zipcode')
+        occupations = self.find_career(keyword)
+        if occupations:
+            for occupation in occupations:
+                print(f"Title: {occupation['OnetTitle']}")
+                print(f"Description: {occupation['OccupationDescription']}\n")
         
-        career_match = CareerMatch()
+        onetID = input("Enter the OnetCode of the occupation you want to know more about: ")
+        occupation_details = self.detailed_occupation_data(onetID, self.location)
         
-        if career_match.is_valid_zip(zipcode) and career_match.validate_zip_with_api(zipcode):
-            careers = career_match.find_career(keyword)
-            return render_template('results.html', careers=careers, keyword=keyword, zipcode=zipcode)
-        else:
-            return render_template('career_finder.html', error="Invalid zip code.")
+        if occupation_details:
+            for key, value in occupation_details.items():
+                print(f"{key}: {value}")
 
-    return render_template('career_finder.html')
-
-@app.route('/chatbot', methods=['POST'])
-def chatbot_response():
-    try:
-        data = request.get_json()
-        user_message = data.get('message')
-
-        # Call your AI API here
-        response_message = get_response_from_ai(user_message)
-
-        return jsonify({'response': response_message})
-    except Exception as e:
-        print(f"Error: {e}")  # Log the error for debugging
-        return jsonify({'response': "Error: Unable to process your request."}), 500
-
-
-def get_chatbot_response(message):
-    # Placeholder for Google Generative AI integration
-    return f"Chatbot response to: {message}"
-
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    career_match = CareerMatch()
+    career_match.main()
