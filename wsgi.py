@@ -108,7 +108,7 @@ class SimpleWSGIApp:
         </head>
         <body style="background-image: url('https://images.unsplash.com/photo-1503480207415-fdddcc21d5fc?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; height: 100vh; margin: 0;">
                 <div class="careers-section">
-                    <h2>Choose an Occupation:</h2>
+                    <h2>Choose an Occupation (Accounting-Related):</h2>
                     <form method="POST" action="/get_details">
                         <div class="job-listings">
                             {job_listings}

@@ -27,7 +27,7 @@ class CareerMatch:
         return response.status_code == 200
 
     def find_career(self, keyword):
-        jobs_url = f'{self.base_url}{self.user_id}/{keyword}/N/0/30'
+        jobs_url = f'{self.base_url}{self.user_id}/{keyword}/N/0/3'
         
         headers = {
             'Content-Type': 'application/json',

@@ -35,7 +35,7 @@ class CareerChatbot:
             else:
                 prompt = f"User is considering a career in {self.career_of_interest}. "
 
-            prompt += """Write in a direct, personable, casual tone. Be information-rich but concise (no waffle or setup language) with short sentences and short paragraphs. Use bullet points, numbered lists, and clearly spaced content to improve readability. Focus on clarity, use jargon-free language. Avoid passive voice and overuse of adjectives or adverbs. Format career paths as a readable list instead of a table."""
+            prompt += """Do not use more than 80 words. Write in a direct, personable, casual tone, about what the user asked for. Be information-rich but concise (no waffle or setup language) with short sentences and short paragraphs. Focus on clarity, use jargon-free language. Avoid passive voice and overuse of adjectives or adverbs. Always leave the conversation with a question for them to continue with. Be suggestive so its easier for the user to respond. Whatever you talk about, make sure not to change topics abruptly."""
 
             for entry in self.history:
                 prompt += f"{entry}\n"
